@@ -1,7 +1,7 @@
 .PHONY: start
 start:
-	go run cmd/main.go https://example.com/get
+	go run cmd/main.go
 
-.PHONY: start-header
-start-header:
-	go run cmd/main.go https://example.com/get -H 'Content-Type: application/json'
+.PHONY: example
+example:
+	go run cmd/main.go https://ron-swanson-quotes.herokuapp.com/v2/quotes -H 'Content-Type: application/json' -v
