@@ -7,29 +7,29 @@ import (
 	"strings"
 )
 
-type ResponseBuilder struct {
+type Printer struct {
 	prefix string
 	strings.Builder
 }
 
-func NewResponseBuilder(prefix string) *ResponseBuilder {
-	return &ResponseBuilder{
+func NewPrinter(prefix string) *Printer {
+	return &Printer{
 		prefix: ">",
 	}
 }
 
-func (r *ResponseBuilder) WriteResponse(
+func (p *Printer) WriteResponse(
 	res *http.Response,
 	verbose bool,
 	requestWriter io.Writer,
 	bodyWriter io.Writer,
 ) error {
 	if verbose {
-		r.Printf("%v %v", res.Proto, res.Status)
-		r.WriteHeaders(res.Header)
-		r.Printf("")
-		r.Println()
-		if _, err := io.Copy(requestWriter, strings.NewReader(r.String())); err != nil {
+		p.Printf("%v %v", res.Proto, res.Status)
+		p.WriteHeaders(res.Header)
+		p.Printf("")
+		p.Println()
+		if _, err := io.Copy(requestWriter, strings.NewReader(p.String())); err != nil {
 			return err
 		}
 	}
@@ -37,18 +37,18 @@ func (r *ResponseBuilder) WriteResponse(
 	return err
 }
 
-func (w *ResponseBuilder) WriteHeaders(headers http.Header) {
+func (p *Printer) WriteHeaders(headers http.Header) {
 	for key, values := range headers {
 		for _, value := range values {
-			w.Printf("%v: %v", key, value)
+			p.Printf("%v: %v", key, value)
 		}
 	}
 }
 
-func (w *ResponseBuilder) Println() {
+func (w *Printer) Println() {
 	w.WriteString("\n")
 }
 
-func (w *ResponseBuilder) Printf(s string, a ...any) {
-	w.WriteString(fmt.Sprintf("%v %v\n", w.prefix, fmt.Sprintf(s, a...)))
+func (p *Printer) Printf(s string, a ...any) {
+	p.WriteString(fmt.Sprintf("%v %v\n", p.prefix, fmt.Sprintf(s, a...)))
 }

@@ -3,8 +3,11 @@ package httpclient
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gilwong00/go-curl/internal/config"
 	"github.com/gilwong00/go-curl/internal/printer"
@@ -15,8 +18,13 @@ func ExecuteRequest(c *config.RequestConfig) error {
 	var reader io.Reader
 	var tlsConfig *tls.Config
 	// if we have a body append
-	// should only append for non GET request
-	if c.Data != "" {
+	method := strings.ToLower(c.Method)
+	if (method == "put" || method == "post") && c.Data != "" {
+		// attempt to unmarshal body
+		var rawPayload json.RawMessage
+		if err := json.Unmarshal([]byte(c.Data), &rawPayload); err != nil {
+			return fmt.Errorf("invalid json body: %w", err)
+		}
 		reader = bytes.NewBufferString(c.Data)
 	}
 	if c.Insecure {
@@ -57,6 +65,6 @@ func ExecuteRequest(c *config.RequestConfig) error {
 			log.Warn().Err(err).Str("url", c.Url.String()).Msg("failed to close response body")
 		}
 	}()
-	responseBuilder := printer.NewResponseBuilder(">")
+	responseBuilder := printer.NewPrinter(">")
 	return responseBuilder.WriteResponse(res, c.Verbose, c.ControlOutput, c.ResponseBodyOutput)
 }

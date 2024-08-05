@@ -1,9 +1,15 @@
 package main
 
-import "github.com/gilwong00/go-curl/internal/command"
+import (
+	"fmt"
+	"os"
+
+	"github.com/gilwong00/go-curl/internal/command"
+)
 
 func main() {
 	if err := command.CreateRootCommand().Execute(); err != nil {
-		panic(err)
+		fmt.Printf("error: %v\n", err.Error())
+		os.Exit(1)
 	}
 }
